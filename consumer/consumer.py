@@ -33,7 +33,7 @@ writer = BatchWriter(
     host=os.getenv('CLICKHOUSE_HOST', 'localhost'),
     port=int(os.getenv('CLICKHOUSE_PORT', 9000)),
     user=os.getenv('CLICKHOUSE_USER', 'default'),
-    password=os.getenv('CLICKHOUSE_PASSWORD', 'diploma123'),
+    password=os.getenv('CLICKHOUSE_PASSWORD', 'diplom123'),
 )
 
 classifier  = AnomalyClassifier()

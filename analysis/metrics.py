@@ -1,7 +1,7 @@
 from clickhouse_driver import Client
 import numpy as np
 
-ch = Client(host='localhost', port=9000, user='default', password='diploma123')
+ch = Client(host='localhost', port=9000, user='default', password='diplom123')
 
 print("Считаем метрики из ClickHouse...")
 print("Ждём накопления данных...\n")
