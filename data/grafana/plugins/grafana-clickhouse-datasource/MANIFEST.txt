@@ -1,0 +1,39 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+{
+  "manifestVersion": "2.0.0",
+  "signatureType": "grafana",
+  "signedByOrg": "grafana",
+  "signedByOrgName": "Grafana Labs",
+  "plugin": "grafana-clickhouse-datasource",
+  "version": "4.17.0",
+  "time": 1777589899437,
+  "keyId": "7e4d0c6a708866e7",
+  "files": {
+    "CHANGELOG.md": "140bf949c45b99d3892ee6f723233b93419b9bfa87f465f4febd64c6173fed6f",
+    "dashboards/opentelemetry-clickhouse.json": "f9f79f7d2c1059f842ddddddebd810f538fb619621c5dbd0e0fd85bcd2ac2914",
+    "dashboards/data-analysis.json": "15c4ea2dbaf906dffbb6845eb9c9c3299e6fbd614db356db5e3655263a76c7a4",
+    "dashboards/system-dashboards.json": "017881431af913d3c8f776b4dab51e8a153745b016a964bb1ec3c99f52704af4",
+    "dashboards/query-analysis.json": "cac22978b1b9378ec2d4b56c9af096a01492c31cfce526ef06b3dc58ad05a3b2",
+    "dashboards/cluster-analysis.json": "7f83d4d09cc6f045768f5bf47485b864dd6da03094f8607808dec77cb96902e5",
+    "README.md": "d4e3dbe61f39504d4592173f92f3cf7a2dd4a52ddaa5824d8fbb68ef177b4fbe",
+    "plugin.json": "567e7aac4784f58dcbf8e1b200d54986dc1c647cb2cf464fdc9cb65475815d15",
+    "LICENSE": "cdd15e614b50e88443fe574ad56bde5ba697d958a45376431638eea816e3bfc3",
+    "module.js": "0c4051f6da1bc8dd5ab787145abdb1b454f4261786bf7aed2626fd280f439bb9",
+    "gpx_clickhouse_linux_arm64": "9a957e6ef3b83e67b006a983cf9f7e82252828eb4776af34749374b5ec5c5d42",
+    "img/logo.svg": "838199055d86584ff105e5e91013203a6acb7d3f2061ae27678786125ab11f09",
+    "go_plugin_build_manifest": "288de9f5b534568dd8732f4819db803c3ae21a4eabd7ddba0ccb68976e43eab5",
+    "module.js.map": "b06357e5ca46c601613f61ad93f68ef97e9797899f99eeed20b33b0a8bf53fbb"
+  }
+}
+-----BEGIN PGP SIGNATURE-----
+
+wsA9BAETCgBtBYJp896LCRB+TQxqcIhm50UUAAAAAAAcACBzYWx0QG5vdGF0
+aW9ucy5vcGVucGdwanMub3JnSuClIvGfmmglgVhnMWRbN6MUOZs2B22RzCQU
+WYbnu5wWIQTzOyW2kQdOhGNlcPN+TQxqcIhm5wAAZugCBRTMUqqvYXObcBeL
+pDwVbxWlNwYdKwoanNOVzFU25bNyBuq9s878OoWc87MSG3t+lj2sg5m0+nem
+IwDqOXpdKntwAgjcxUpEPlHgwNwUw26RJesexSY8Ue2kXBXFn7XidPHXQPW7
+WjNBVFicdLPBUHTkG6AiknawcaGdIqebG/VzGOsbMg==
+=BXTA
+-----END PGP SIGNATURE-----

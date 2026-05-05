@@ -1,0 +1,12 @@
+columns format version: 1
+10 columns:
+`timestamp` DateTime
+`src_ip` String
+`dst_ip` String
+`src_port` UInt16
+`dst_port` UInt16
+`protocol` String
+`bytes` UInt64
+`packets` UInt32
+`duration` Float32
+`is_anomaly` UInt8
