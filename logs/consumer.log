@@ -1,0 +1,11 @@
+2026-05-05 21:24:22 | consumer | INFO | Консьюмер v3 запущен.
+2026-05-05 21:24:22 | consumer | INFO | Алгоритмы: [zscore(trained=True, weight=0.3), moving_average(trained=True, weight=0.3), isolation_forest(trained=False, weight=0.25), autoencoder(trained=False, weight=0.15)]
+2026-05-05 21:24:46 | consumer | INFO | [DDOS] score=1.0 | Z:1 MA:1 ISO:0 AE:0 | bytes:518815 | src:192.168.5.235 -> dst:10.0.4.207
+2026-05-05 21:24:54 | consumer | INFO | [DATA_LEAK] score=1.0 | Z:1 MA:1 ISO:0 AE:0 | bytes:383332 | src:192.168.2.11 -> dst:185.50.77.115
+2026-05-05 21:25:28 | consumer | INFO | [DDOS] score=1.0 | Z:1 MA:1 ISO:0 AE:0 | bytes:263881 | src:192.168.4.146 -> dst:10.0.4.207
+2026-05-05 21:25:39 | consumer | INFO | [DDOS] score=1.0 | Z:1 MA:1 ISO:0 AE:0 | bytes:157713 | src:192.168.4.55 -> dst:10.0.4.86
+2026-05-05 21:25:47 | consumer | INFO | [DATA_LEAK] score=1.0 | Z:1 MA:1 ISO:0 AE:0 | bytes:446912 | src:192.168.4.250 -> dst:185.7.37.21
+2026-05-05 21:26:21 | consumer | INFO | [DDOS] score=1.0 | Z:1 MA:1 ISO:1 AE:0 | bytes:164449 | src:192.168.7.4 -> dst:10.0.2.198
+2026-05-05 21:26:42 | consumer | INFO | [DATA_LEAK] score=1.0 | Z:1 MA:1 ISO:1 AE:0 | bytes:420501 | src:192.168.9.118 -> dst:185.39.205.118
+2026-05-05 21:26:51 | consumer | INFO | [DDOS] score=1.0 | Z:1 MA:1 ISO:1 AE:0 | bytes:206098 | src:192.168.9.142 -> dst:10.0.2.63
+2026-05-05 21:27:07 | consumer | INFO | [DDOS] score=1.0 | Z:1 MA:1 ISO:1 AE:1 | bytes:393171 | src:192.168.1.191 -> dst:10.0.2.46
