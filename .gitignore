@@ -26,3 +26,4 @@ results/metrics_final.txt
 # IDE
 .vscode/
 .idea/
+logs/
