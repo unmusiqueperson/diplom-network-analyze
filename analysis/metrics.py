@@ -83,4 +83,4 @@ ae_pred = np.array([1 if ae.detect(x.tolist()) else 0 for x in X])
 calc_metrics(y_true, ae_pred, "Autoencoder")
 
 print(f"\n{'='*40}")
-print("Готово! Результаты можно вставить в диплом.")
+print("Готово!")
