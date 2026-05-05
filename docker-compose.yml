@@ -3,6 +3,7 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     platform: linux/amd64
+    mem_limit: 512m
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -10,6 +11,7 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     platform: linux/amd64
+    mem_limit: 1g
     depends_on:
       - zookeeper
     ports:
@@ -19,26 +21,78 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_NUM_PARTITIONS: 3
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.5.0
+    platform: linux/amd64
+    mem_limit: 512m
+    depends_on:
+      - kafka
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    platform: linux/amd64
+    mem_limit: 512m
+    depends_on:
+      - kafka
+      - schema-registry
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: diplom
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
 
   clickhouse:
     image: clickhouse/clickhouse-server:24.3
     platform: linux/amd64
+    mem_limit: 2g
     ports:
       - "8123:8123"
       - "9000:9000"
     environment:
-      CLICKHOUSE_USER: default
-      CLICKHOUSE_PASSWORD: diploma123
-      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB}
     volumes:
       - ./data/clickhouse:/var/lib/clickhouse
 
+  redis:
+    image: redis:7.2-alpine
+    mem_limit: 128m
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+
   grafana:
     image: grafana/grafana:10.4.0
+    mem_limit: 512m
     ports:
       - "3000:3000"
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: diploma123
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
     volumes:
       - ./data/grafana:/var/lib/grafana
+
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    mem_limit: 512m
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    mem_limit: 128m
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml
 

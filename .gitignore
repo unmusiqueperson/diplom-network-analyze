@@ -1,5 +1,28 @@
+# Данные Docker
 data/
 images/
+
+# Секреты
+.env
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.pkl
+*.pt
+
+# Модели
+consumer/models/
+
+# Результаты которые генерируются автоматически
+results/report_final.pdf
+results/metrics_final.txt
+
+# macOS
 .DS_Store
+
+# IDE
+.vscode/
+.idea/
