@@ -45,7 +45,7 @@ class AutoencoderDetector(BaseDetector):
 
     def _load_model(self):
         if os.path.exists(MODEL_PATH):
-            checkpoint = torch.load(MODEL_PATH)
+            checkpoint = torch.load(MODEL_PATH, weights_only=False)
             self.model.load_state_dict(checkpoint['model_state'])
             self.threshold = checkpoint['threshold']
             self.running_mean = checkpoint['running_mean']

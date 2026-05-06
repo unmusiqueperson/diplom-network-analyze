@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Network Anomaly Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0f12;
+      --surface:  #141720;
+      --border:   #252933;
+      --accent:   #4f8ef7;
+      --text:     #d4d8e2;
+      --muted:    #555c6e;
+      --error-bg: #1e1214;
+      --error:    #e05c6a;
+      --font:     'JetBrains Mono', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 360px;
+      padding: 0 16px;
+    }
+
+    .header {
+      margin-bottom: 32px;
+    }
+
+    .header-label {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .header-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 24px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+    }
+
+    input::placeholder {
+      color: var(--muted);
+    }
+
+    .btn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      letter-spacing: 0.03em;
+    }
+
+    .btn:hover   { opacity: 0.88; }
+    .btn:active  { opacity: 0.75; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .error {
+      display: none;
+      background: var(--error-bg);
+      border: 1px solid var(--error);
+      border-radius: 4px;
+      color: var(--error);
+      font-size: 12px;
+      padding: 8px 12px;
+      margin-top: 14px;
+    }
+
+    .error.visible { display: block; }
+
+    .footer {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="header-label">Network Anomaly Monitor</div>
+      <div class="header-title">Authentication</div>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" type="text" placeholder="admin" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn" id="login-btn" type="button">Sign in</button>
+      <div class="error" id="error-msg"></div>
+    </div>
+
+    <div class="footer">ISP Traffic Analysis System · v1.0</div>
+  </div>
+
+  <script src="/config.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script>
+    authRedirectIfLoggedIn();
+
+    const btn      = document.getElementById('login-btn');
+    const errorEl  = document.getElementById('error-msg');
+    const usernameEl = document.getElementById('username');
+    const passwordEl = document.getElementById('password');
+
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.classList.add('visible');
+    }
+
+    function clearError() {
+      errorEl.classList.remove('visible');
+    }
+
+    async function handleLogin() {
+      clearError();
+
+      const username = usernameEl.value.trim();
+      const password = passwordEl.value;
+
+      if (!username || !password) {
+        showError('Введите логин и пароль');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Connecting...';
+
+      try {
+        await authLogin(username, password);
+        // authLogin сам делает redirect на index.html при успехе
+      } catch (err) {
+        showError(err.message || 'Ошибка соединения');
+        btn.disabled = false;
+        btn.textContent = 'Sign in';
+      }
+    }
+
+    btn.addEventListener('click', handleLogin);
+
+    // Enter в любом поле → сабмит
+    [usernameEl, passwordEl].forEach(el => {
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter') handleLogin();
+      });
+    });
+  </script>
+</body>
+</html>

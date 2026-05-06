@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Network Anomaly Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0d0f12;
+      --surface: #141720;
+      --border:  #252933;
+      --accent:  #4f8ef7;
+      --text:    #d4d8e2;
+      --muted:   #555c6e;
+      --danger:  #e05c6a;
+      --warn:    #e0a05c;
+      --font:    'JetBrains Mono', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      min-height: 100vh;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 48px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .topbar-title { font-size: 13px; font-weight: 500; }
+    .topbar-sub   { font-size: 11px; color: var(--muted); }
+
+    .topbar-right { display: flex; align-items: center; gap: 16px; font-size: 11px; color: var(--muted); }
+
+    .status-dot {
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+    .status-dot.live { background: #63c05c; }
+
+    #topbar-user { color: var(--text); }
+
+    .btn-logout {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--muted);
+      font-family: var(--font);
+      font-size: 11px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .btn-logout:hover { color: var(--text); border-color: var(--text); }
+
+    /* ── Layout ── */
+    .content { padding: 20px; }
+
+    /* ── Status bar ── */
+    .statusbar {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .error-banner {
+      display: none;
+      background: #1e1214;
+      border: 1px solid var(--danger);
+      border-radius: 4px;
+      color: var(--danger);
+      font-size: 11px;
+      padding: 6px 12px;
+      margin-bottom: 14px;
+    }
+    .error-banner.visible { display: block; }
+
+    /* ── KPI Row ── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+    }
+
+    .kpi-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+
+    .kpi-value {
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .kpi-value.danger { color: var(--danger); }
+    .kpi-value.warn   { color: var(--warn); }
+
+    .kpi-sub {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* ── Alerts table ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+    }
+
+    .card-meta { font-size: 11px; color: var(--muted); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0 8px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 7px 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .pill {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .pill-ddos     { background: #2a1115; color: #e05c6a; }
+    .pill-portscan { background: #1e1a0e; color: #e0a05c; }
+    .pill-data_leak{ background: #0e1825; color: #4f8ef7; }
+    .pill-bgp_anomaly { background: #17152a; color: #9b8ef7; }
+    .pill-unknown  { background: #181a1e; color: #555c6e; }
+
+    .empty-row td {
+      color: var(--muted);
+      text-align: center;
+      padding: 20px;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 180px;
+    }
+
+    .chart-empty {
+      display: none;
+      position: absolute;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .chart-empty.visible {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="topbar-title">Network Anomaly Monitor</div>
+        <div class="topbar-sub">ISP Traffic Analysis System</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span><span class="status-dot" id="status-dot"></span><span id="status-text">connecting...</span></span>
+      <span id="topbar-user"></span>
+      <button class="btn-logout" id="logout-btn">Sign out</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="statusbar">
+      Last update: <span id="last-update">—</span>
+    </div>
+
+    <div class="error-banner" id="error-banner"></div>
+
+    <!-- KPI -->
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-label">Total events</div>
+        <div class="kpi-value" id="kpi-total">—</div>
+        <div class="kpi-sub">session</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Anomalies</div>
+        <div class="kpi-value danger" id="kpi-anomalies">—</div>
+        <div class="kpi-sub" id="kpi-rate">—% of traffic</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">DDoS</div>
+        <div class="kpi-value warn" id="kpi-ddos">—</div>
+        <div class="kpi-sub">detected</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Port scan</div>
+        <div class="kpi-value" id="kpi-portscan">—</div>
+        <div class="kpi-sub">detected</div>
+      </div>
+    </div>
+
+    <!-- Timeseries chart -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="card-header">
+        <span class="card-title">Events per minute — last hour</span>
+        <span class="card-meta" id="chart-meta">—</span>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="timeseries-chart"></canvas>
+        <div class="chart-empty" id="chart-empty">No data for the last hour</div>
+      </div>
+    </div>
+
+    <!-- Alerts table -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Recent alerts</span>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <select id="alerts-filter" style="font-family:var(--font);font-size:11px;background:var(--bg);color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:3px 8px;cursor:pointer;outline:none;">
+            <option value="">All types</option>
+            <option value="ddos">DDoS</option>
+            <option value="portscan">Port scan</option>
+            <option value="data_leak">Data leak</option>
+            <option value="bgp_anomaly">BGP anomaly</option>
+            <option value="unknown">Unknown</option>
+          </select>
+          <span class="card-meta" id="alerts-count">—</span>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Source IP</th>
+            <th>Type</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody id="alerts-tbody">
+          <tr class="empty-row"><td colspan="4">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="/config.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/websocket.js"></script>
+  <script src="/assets/js/dashboard.js"></script>
+</body>
+</html>
