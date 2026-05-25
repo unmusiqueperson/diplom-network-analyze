@@ -6,10 +6,10 @@ route:
   group_wait: 10s
   group_interval: 1m
   repeat_interval: 1h
-  receiver: 'webhook'
+  receiver: 'telegram'
 
 receivers:
-  - name: 'webhook'
+  - name: 'telegram'
     webhook_configs:
-      - url: 'http://localhost:5001/alerts'
+      - url: 'http://host.docker.internal:5001/webhook'
         send_resolved: true
