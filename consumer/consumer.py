@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import time
 from dotenv import load_dotenv
 
 # Загружаем .env
@@ -16,6 +17,11 @@ from algorithms import (
     EnsembleDetector
 )
 from kafka import KafkaConsumer
+from metrics import (
+  events_processed_total, anomalies_detected_total,
+  processing_latency_seconds, drift_events_total,
+  processing_errors_total, start_metrics_server
+)
 
 logger = setup_logger('consumer')
 
@@ -48,9 +54,12 @@ ensemble = EnsembleDetector([zscore, mov_avg, iso, ae])
 
 logger.info("Консьюмер v3 запущен.")
 logger.info(f"Алгоритмы: {ensemble.detectors}")
+start_metrics_server(8001)
+logger.info("Metrics server started on: 8001")
 
 for message in consumer:
     try:
+        _start = time.time()
         event = message.value
         features = [
             event['bytes'], event['packets'], event['duration'],
@@ -64,6 +73,7 @@ for message in consumer:
         # Проверяем дрейф данных
         drift_detected = drift.add(features)
         if drift_detected:
+            drift_event.total.inc()
             logger.warning("Дрейф данных! Рекомендуется переобучение.")
 
         # Ensemble голосование
@@ -87,7 +97,11 @@ for message in consumer:
         # Батчевая запись
         writer.add(event, anomaly_result if is_anomaly else None)
 
+        processing_latency_seconds.observe(time.time() - _start)
+        events_processed_total.inc()
+
         if is_anomaly:
+            anomalies_detected_total.labels(anomaly_type).inc()
             logger.info(
                 f"[{anomaly_type.upper()}] score={score} | "
                 f"Z:{votes.get('zscore',0)} "
@@ -99,5 +113,6 @@ for message in consumer:
             )
 
     except Exception as e:
+        processing_errors_total.inc()
         logger.error(f"Ошибка обработки события: {e}")
         continue

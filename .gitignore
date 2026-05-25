@@ -27,3 +27,4 @@ results/metrics_final.txt
 .vscode/
 .idea/
 logs/
+.DS_Store

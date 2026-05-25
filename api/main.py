@@ -15,6 +15,7 @@ load_dotenv(os.path.join(os.path.dirname(__file__), '../.env'))
 from auth import get_current_user
 from routers.v1 import stats, alerts, config, ws as ws_router
 from cache import get_cache
+from prometheus_fastapi_instrumentator import Instrumentator
 from ws_manager import manager
 
 logger = logging.getLogger(__name__)
@@ -39,6 +40,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+Instrumentator().instrument(app).expose(app)
 
 app.include_router(stats.router,      prefix="/api/v1", tags=["Statistics"])
 app.include_router(alerts.router,     prefix="/api/v1", tags=["Alerts"])
