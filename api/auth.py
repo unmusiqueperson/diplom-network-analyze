@@ -5,26 +5,39 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from pydantic import BaseModel
 
-SECRET_KEY = os.getenv("API_SECRET_KEY", "diplom_secret_key_2026")
+SECRET_KEY = os.getenv("API_SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("API_SECRET_KEY не задан в .env")
+
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/token")
 
-# Простая база пользователей (в продакшне — база данных)
-USERS = {
-    "admin": "diplom123"
-}
+# Пользователи из env. Формат: API_USERS=admin:password,viewer:password2
+_raw_users = os.getenv("API_USERS", "")
+USERS: dict[str, str] = {}
+for pair in _raw_users.split(","):
+    pair = pair.strip()
+    if ":" in pair:
+        u, p = pair.split(":", 1)
+        USERS[u.strip()] = p.strip()
+
+if not USERS:
+    raise RuntimeError("API_USERS не задан в .env. Формат: admin:password")
+
 
 class Token(BaseModel):
     access_token: str
     token_type: str
+
 
 def create_access_token(data: dict):
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
@@ -40,6 +53,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
     return username
+
 
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     password = USERS.get(form_data.username)
